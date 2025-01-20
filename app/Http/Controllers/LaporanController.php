@@ -117,21 +117,34 @@ class LaporanController extends Controller
         $keuanganChart->dataset('Transaksi Keluar', 'line', $keuanganData['keluar'])->color('#ff0000');
 
         $barangData = Inventory::select(
-            DB::raw('MONTHNAME(created_at) as bulan'),
+            DB::raw('MONTH(tanggal) as bulan'),
             'nama_barang',
-            DB::raw('SUM(CASE WHEN kategori = "masuk" THEN jumlah ELSE 0 END) as barang_masuk'),
-            DB::raw('SUM(CASE WHEN kategori = "keluar" THEN jumlah ELSE 0 END) as barang_keluar'),
-            DB::raw('SUM(CASE WHEN kategori = "masuk" THEN jumlah ELSE 0 END) - SUM(CASE WHEN kategori = "keluar" THEN jumlah ELSE 0 END) as stok')
-        )
-        ->groupBy('bulan', 'nama_barang')
-        ->orderBy(DB::raw('MONTH(created_at)'))
-        ->get();
+            DB::raw('SUM(CASE WHEN kategori = "Masuk" THEN jumlah ELSE 0 END) as barang_masuk'),
+            DB::raw('SUM(CASE WHEN kategori = "Keluar" THEN jumlah ELSE 0 END) as barang_keluar'),
+            DB::raw('SUM(CASE WHEN kategori = "Masuk" THEN jumlah ELSE 0 END) - SUM(CASE WHEN kategori = "Keluar" THEN jumlah ELSE 0 END) as stok')
+        );
+        
+        // Tambahkan filter bulan jika ada parameter bulan di request
+        if ($bulan && is_numeric($bulan) && $bulan >= 1 && $bulan <= 12) {
+            $barangData->whereMonth('tanggal', $bulan);
+        }
+        
+        $barangData = $barangData
+            ->groupBy('bulan', 'nama_barang')
+            ->orderBy(DB::raw('MONTH(tanggal)'))
+            ->get();
+        
 
         // Data untuk grafik inventory
         $inventoryData = [
             'masuk' => $barangMasuk,
             'keluar' => $barangKeluar
         ];
+
+        $barangData = $barangData->map(function ($item) {
+            $item->bulan = \Carbon\Carbon::createFromFormat('m', $item->bulan)->format('F');
+            return $item;
+        });
 
         // Membuat grafik inventory
         $inventoryChart = new Chart;
@@ -185,9 +198,35 @@ class LaporanController extends Controller
                     'selisih' => $pemasukan - $pengeluaran,
                 ];
             });
-
-        $pdf = FacadePdf::loadView('laporan.pdf', ['tableData' => $tableData]);
-
-        return $pdf->download('laporan-transaksi.pdf');
+            
+            $queryBarang = Inventory::select(
+                DB::raw('MONTH(tanggal) as bulan'),
+                'nama_barang',
+                DB::raw('SUM(CASE WHEN kategori = "Masuk" THEN jumlah ELSE 0 END) as barang_masuk'),
+                DB::raw('SUM(CASE WHEN kategori = "Keluar" THEN jumlah ELSE 0 END) as barang_keluar'),
+                DB::raw('SUM(CASE WHEN kategori = "Masuk" THEN jumlah ELSE 0 END) - SUM(CASE WHEN kategori = "Keluar" THEN jumlah ELSE 0 END) as stok')
+            );
+        
+            if ($bulan && is_numeric($bulan) && $bulan >= 1 && $bulan <= 12) {
+                $queryBarang->whereMonth('tanggal', $bulan);
+            }
+        
+            $barangData = $queryBarang
+                ->groupBy('bulan', 'nama_barang')
+                ->orderBy(DB::raw('MONTH(tanggal)'))
+                ->get();
+        
+            // Konversi bulan menjadi nama bulan
+            $barangData = $barangData->map(function ($item) {
+                $item->bulan = \Carbon\Carbon::createFromFormat('m', $item->bulan)->format('F');
+                return $item;
+            });
+        
+            // Generate PDF
+            $pdf = FacadePdf::loadView('laporan.pdf', [
+                'tableData' => $tableData,
+                'barangData' => $barangData,
+            ]);        
+        return $pdf->download('laporan-transaksi-barang.pdf');
     }
 }
