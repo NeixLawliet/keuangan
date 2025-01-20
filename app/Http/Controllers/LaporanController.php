@@ -116,6 +116,17 @@ class LaporanController extends Controller
         $keuanganChart->dataset('Transaksi Masuk', 'line', $keuanganData['masuk'])->color('#00ff00');
         $keuanganChart->dataset('Transaksi Keluar', 'line', $keuanganData['keluar'])->color('#ff0000');
 
+        $barangData = Inventory::select(
+            DB::raw('MONTHNAME(created_at) as bulan'),
+            'nama_barang',
+            DB::raw('SUM(CASE WHEN kategori = "masuk" THEN jumlah ELSE 0 END) as barang_masuk'),
+            DB::raw('SUM(CASE WHEN kategori = "keluar" THEN jumlah ELSE 0 END) as barang_keluar'),
+            DB::raw('SUM(CASE WHEN kategori = "masuk" THEN jumlah ELSE 0 END) - SUM(CASE WHEN kategori = "keluar" THEN jumlah ELSE 0 END) as stok')
+        )
+        ->groupBy('bulan', 'nama_barang')
+        ->orderBy(DB::raw('MONTH(created_at)'))
+        ->get();
+
         // Data untuk grafik inventory
         $inventoryData = [
             'masuk' => $barangMasuk,
@@ -142,7 +153,8 @@ class LaporanController extends Controller
             'barangKeluar',
             'keuanganChart',
             'inventoryChart',
-            'inventoryData'
+            'inventoryData',
+            'barangData'
         ));
     }
 

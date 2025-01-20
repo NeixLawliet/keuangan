@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use ConsoleTVs\Charts\Classes\Chartjs\Chart;
 use Illuminate\Support\Facades\DB;
 use App\Models\Keuangan;
+use App\Models\Inventory;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -165,6 +166,23 @@ class DashboardController extends Controller
                 ];
             });
 
+            $barangData = Inventory::select(
+                DB::raw('MONTHNAME(created_at) as bulan'),
+                'nama_barang',
+                DB::raw('SUM(CASE WHEN kategori = "masuk" THEN jumlah ELSE 0 END) as barang_masuk'),
+                DB::raw('SUM(CASE WHEN kategori = "keluar" THEN jumlah ELSE 0 END) as barang_keluar'),
+                DB::raw('SUM(CASE WHEN kategori = "masuk" THEN jumlah ELSE 0 END) - SUM(CASE WHEN kategori = "keluar" THEN jumlah ELSE 0 END) as stok')
+            )
+            ->groupBy('bulan', 'nama_barang')
+            ->orderBy(DB::raw('MONTH(created_at)'))
+            ->get();
+    
+            // Data untuk grafik inventory
+            $inventoryData = [
+                'masuk' => $barangMasuk,
+                'keluar' => $barangKeluar
+            ];
+
         // Kirim data ke view
         return view('dashboard', compact(
             'transaksiMasuk',
@@ -181,7 +199,8 @@ class DashboardController extends Controller
             'tableData',
             'totalMasuk',
             'totalKeluar',
-            'selisih'
+            'selisih',
+            'barangData'
         ));
     }
 

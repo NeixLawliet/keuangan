@@ -44,5 +44,42 @@
             @endforeach
         </tbody>
     </table>
+
+    <table>
+        <thead>
+            <tr>
+                <th>NO</th>
+                <th>Bulan</th>
+                <th>Nama Barang</th>
+                <th>Barang Masuk</th>
+                <th>Barang Keluar</th>
+                <th>Stok</th>
+            </tr>
+        </thead>
+        <h2 style="text-align: center; margin-top: 40px;">Laporan Barang</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>NO</th>
+                    <th>Bulan</th>
+                    <th>Nama Barang</th>
+                    <th>Barang Masuk</th>
+                    <th>Barang Keluar</th>
+                    <th>Stok</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($barangData as $item)
+                    <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $item->bulan }}</td>
+                        <td>{{ $item->nama_barang }}</td>
+                        <td>{{ $item->barang_masuk }}</td>
+                        <td>{{ $item->barang_keluar }}</td>
+                        <td>{{ $item->stok }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
 </body>
 </html>

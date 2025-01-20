@@ -15,21 +15,32 @@ class AuthController extends Controller
 
     // Proses login
     public function store(Request $request)
-    {
-        $credentials = $request->validate([
-            'username' => ['required', 'string'],
-            'password' => ['required', 'string'],
-        ]);
+{
+    $credentials = $request->validate([
+        'username' => ['required', 'string'],
+        'password' => ['required', 'string'],
+    ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->route('dashboard'); // Redirect ke dashboard setelah login
+    if (Auth::attempt($credentials)) {
+        $request->session()->regenerate();
+
+        // Arahkan pengguna berdasarkan perannya
+        $user = Auth::user();
+        if ($user->role === 'admin_keuangan') {
+            return redirect()->route('keuangan.index');
+        } elseif ($user->role === 'admin_inventory') {
+            return redirect()->route('inventory.index');
         }
 
-        return back()->withErrors([
-            'username' => 'The provided credentials do not match our records.',
-        ])->onlyInput('username');
+        // Default redirect untuk role lain
+        return redirect()->route('dashboard');
     }
+
+    return back()->withErrors([
+        'username' => 'The provided credentials do not match our records.',
+    ])->onlyInput('username');
+}
+
 
     // Logout
     public function logout(Request $request)

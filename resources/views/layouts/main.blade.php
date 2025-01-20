@@ -41,12 +41,16 @@
                     class="navbar-brand-img h-100"
                     alt="Main Logo" />
 
-                <span class="ms-1 font-weight-bold"> Admin Finventory </span>
+                <span class="ms-1 font-weight-bold">
+                    {{ Auth::user()->name }}
+                </span>
+
             </a>
         </div>
         <hr class="horizontal dark mt-0">
         <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
             <ul class="navbar-nav">
+            @if (Auth::user()->role == 'admin_besar')
                 <li class="nav-item">
                     <a class="nav-link {{ Route::is('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
                         <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
@@ -55,6 +59,9 @@
                         <span class="nav-link-text ms-1">Dashboard</span>
                     </a>
                 </li>
+                @endif
+                
+                @if (Auth::user()->role == 'admin_besar' || Auth::user()->role == 'admin_keuangan')
                 <li class="nav-item">
                     <a class="nav-link {{ Route::is('keuangan.index') ? 'active' : '' }}" href="{{ route('keuangan.index') }}">
                         <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
@@ -63,6 +70,8 @@
                         <span class="nav-link-text ms-1">Keuangan</span>
                     </a>
                 </li>
+                @endif
+                @if (Auth::user()->role == 'admin_besar' || Auth::user()->role == 'admin_inventory')
                 <li class="nav-item">
                     <a class="nav-link {{ Route::is('inventory.index') ? 'active' : '' }}" href="{{ route('inventory.index') }}">
                         <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
@@ -71,6 +80,7 @@
                         <span class="nav-link-text ms-1">Inventory</span>
                     </a>
                 </li>
+                @endif
                 <li class="nav-item">
                     <a class="nav-link {{ Route::is('laporan.index') ? 'active' : '' }}" href="{{ route('laporan.index') }}">
                         <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
