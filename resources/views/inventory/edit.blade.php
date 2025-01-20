@@ -11,7 +11,7 @@
             
             <!-- Bagian bawah card -->
             <div class="card-body bg-white">
-                <form action="{{ route('keuangan.update', $inventory->id) }}" method="POST">
+                <form action="{{ route('inventory.update', $inventory->id) }}" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="mb-3">

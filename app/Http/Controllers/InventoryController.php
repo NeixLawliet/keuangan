@@ -46,9 +46,11 @@ class InventoryController extends Controller
 
     public function keluar()
     {
-        $barangList = Inventory::select('id', 'nama_barang')->get();
+        // Mengambil hanya barang dengan kategori "Masuk"
+        $barangList = Inventory::where('kategori', 'Masuk')->select('id', 'nama_barang')->get();
         return view('inventory.keluar', compact('barangList'));
     }
+
 
     /**
      * Store a newly created resource in storage.

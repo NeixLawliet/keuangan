@@ -13,35 +13,41 @@
             <div class="card-body bg-white">
                 <form action="{{ route('inventory.keluar.store') }}" method="POST">
                     @csrf
+                    <!-- Dropdown Barang -->
                     <div class="form-group mb-3">
                         <label for="id">Pilih Barang</label>
-                        <select name="id" id="id" class="form-control">
+                        <select name="id" id="id" class="form-control" required>
                             <option value="">-- Pilih Barang --</option>
-                            @foreach($barangList as $barang)
+                            @forelse($barangList as $barang)
                                 <option value="{{ $barang->id }}">{{ $barang->nama_barang }}</option>
-                            @endforeach
+                            @empty
+                                <option value="">Tidak ada barang tersedia</option>
+                            @endforelse
                         </select>
                         @error('id')
                         <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
 
+                    <!-- Input Tanggal -->
                     <div class="form-group mb-3">
                         <label for="tanggal">Tanggal</label>
-                        <input type="date" name="tanggal" id="tanggal" class="form-control" value="{{ old('tanggal') }}">
+                        <input type="date" name="tanggal" id="tanggal" class="form-control" value="{{ old('tanggal') }}" required>
                         @error('tanggal')
                         <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
 
+                    <!-- Input Jumlah -->
                     <div class="form-group mb-3">
                         <label for="jumlah">Jumlah Barang Keluar</label>
-                        <input type="number" name="jumlah" id="jumlah" class="form-control" value="{{ old('jumlah') }}">
+                        <input type="number" name="jumlah" id="jumlah" class="form-control" value="{{ old('jumlah') }}" min="1" required>
                         @error('jumlah')
                         <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
 
+                    <!-- Tombol Simpan -->
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary">Simpan</button>
                     </div>

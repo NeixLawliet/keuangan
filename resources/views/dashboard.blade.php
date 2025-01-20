@@ -249,7 +249,10 @@
         </div>
     </div>
 
-    <div class="row mt-4">
+    <div class="card mt-4">
+        <div class="card-header pb-0">
+            <h6>Data Transaksi</h6>
+        </div>
         <!-- Tabel -->
         <div class="card-body">
             <div class="table-responsive">

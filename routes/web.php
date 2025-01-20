@@ -31,7 +31,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/keuangan/{id}/edit', [KeuanganController::class, 'edit'])->name('keuangan.edit');
     Route::put('/keuangan/{id}', [KeuanganController::class, 'update'])->name('keuangan.update');
     Route::delete('/keuangan/{id}', [KeuanganController::class, 'destroy'])->name('keuangan.destroy');
-    Route::get('/keuangan/download-csv', [KeuanganController::class, 'downloadCsv'])->name('keuangan.download_csv');
 
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create');
