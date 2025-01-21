@@ -286,8 +286,9 @@
 
     <!-- View All -->
     <div class="card-footer text-center">
-        <a href="{{ route('keuangan.index') }}" class="text-primary">View All >></a>
+        <a href="{{ route('keuangan.index') }}" class="btn btn-primary mt-4">View All >></a>
     </div>
+
 
     <div class="card mt-4">
         <div class="card-header pb-0">
@@ -321,7 +322,7 @@
         </div>
     </div>
     <div class="card-footer text-center">
-        <a href="{{ route('inventory.index') }}" class="text-primary">View All >></a>
+        <a href="{{ route('inventory.index') }}"class="btn btn-primary mt-4"">View All >></a>
     </div>
 
 

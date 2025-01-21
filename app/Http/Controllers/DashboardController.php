@@ -167,7 +167,7 @@ class DashboardController extends Controller
             });
 
             $barangData = Inventory::select(
-                DB::raw('MONTHNAME(created_at) as bulan'),
+                DB::raw('MONTHNAME(tanggal) as bulan'),
                 'nama_barang',
                 DB::raw('SUM(CASE WHEN kategori = "masuk" THEN jumlah ELSE 0 END) as barang_masuk'),
                 DB::raw('SUM(CASE WHEN kategori = "keluar" THEN jumlah ELSE 0 END) as barang_keluar'),
