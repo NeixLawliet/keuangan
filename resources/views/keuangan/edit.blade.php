@@ -1,4 +1,5 @@
 @extends('layouts.main')
+@section('title', 'Edit Transaksi')
 
 @section('content')
 <main class="main-content position-relative border-radius-lg">
@@ -8,7 +9,7 @@
                 <h4 class="mb-0 font-weight-bold text-white">Edit Transaksi</h4>
             </div>
             <div class="card-body bg-white">
-                <form action="{{ route('keuangan.update', $keuangan->id) }}" method="POST">
+                <form id="editForm" action="{{ route('keuangan.update', $keuangan->id) }}" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="mb-3">
@@ -31,7 +32,7 @@
                         <input type="number" class="form-control" id="jumlah" name="jumlah" value="{{ $keuangan->jumlah }}" required>
                     </div>
                     <div class="text-center">
-                        <button type="submit" class="btn btn-success">Simpan</button>
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmModal">Simpan</button>
                         <a href="{{ route('keuangan.index') }}" class="btn btn-secondary">Kembali</a>
                     </div>
                 </form>
@@ -39,4 +40,34 @@
         </div>
     </div>
 </main>
+
+<!-- Modal Konfirmasi -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-white">
+                <h5 class="modal-title" id="confirmModalLabel">Konfirmasi Simpan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Apakah Anda yakin ingin menyimpan perubahan pada transaksi ini?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-success" id="confirmSave">Ya, Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const confirmSave = document.getElementById('confirmSave');
+        const editForm = document.getElementById('editForm');
+
+        confirmSave.addEventListener('click', function () {
+            editForm.submit(); // Submit form jika pengguna mengonfirmasi
+        });
+    });
+</script>
 @endsection

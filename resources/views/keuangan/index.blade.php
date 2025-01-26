@@ -3,6 +3,51 @@
 @section('title', 'Keuangan')
 @section('content')
 <main class="main-content position-relative border-radius-lg ">
+
+    <!-- Modal Alert Sukses -->
+    @if (session('success'))
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="successModalLabel">Berhasil</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{ session('success') }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Modal Konfirmasi Hapus -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Hapus</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Apakah Anda yakin ingin menghapus transaksi <span id="deleteDeskripsi" class="fw-bold"></span>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <form id="deleteForm" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">Hapus</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <div class="container mt-4 d-flex align-items-center justify-content-between">
         <div>
             <h4 class="mb-0 main-header" style="color: white; font-weight: bold;">Daftar Transaksi</h4>
@@ -90,7 +135,7 @@
                 </div>
                 <div class="card">
                     <div class="card-body">
-                        <table class="table table-bordered">
+                        <table class="table table-bordered text-center">
                             <thead>
                                 <tr>
                                     <th>Tanggal</th>
@@ -110,11 +155,9 @@
                                     <td>
                                         <a href="{{ route('keuangan.show', $item->id) }}" class="btn btn-info btn-sm">Show</a>
                                         <a href="{{ route('keuangan.edit', $item->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                                        <form action="{{ route('keuangan.destroy', $item->id) }}" method="POST" style="display: inline-block;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus transaksi ini?')">Delete</button>
-                                        </form>
+                                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ $item->id }}" data-deskripsi="{{ $item->deskripsi }}">
+                                            Delete
+                                        </button>
                                     </td>
                                 </tr>
                                 @empty
@@ -130,4 +173,32 @@
     </div>
     </div>
 </main>
+
+@if (session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+        successModal.show();
+    });
+</script>
+@endif
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var transaksiId = button.getAttribute('data-id');
+            var deskripsi = button.getAttribute('data-deskripsi');
+
+            var deleteForm = deleteModal.querySelector('#deleteForm');
+            var deleteDeskripsi = deleteModal.querySelector('#deleteDeskripsi');
+
+            deleteForm.action = "{{ url('keuangan') }}/" + transaksiId;
+            deleteDeskripsi.textContent = deskripsi;
+        });
+    });
+</script>
+
+
 @endsection

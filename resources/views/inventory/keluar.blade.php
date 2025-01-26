@@ -1,4 +1,5 @@
 @extends('layouts.main')
+@section('title', 'Input Barang Keluar')
 
 @section('content')
 <main class="main-content position-relative border-radius-lg">
@@ -8,10 +9,10 @@
             <div class="card-header bg-primary text-white text-center" style="border-top-left-radius: 15px; border-top-right-radius: 15px;">
                 <h4 class="mb-0 font-weight-bold text-white">Input Barang Keluar</h4>
             </div>
-            
+
             <!-- Bagian bawah card -->
             <div class="card-body bg-white">
-                <form action="{{ route('inventory.keluar.store') }}" method="POST">
+                <form id="barangKeluarForm" action="{{ route('inventory.keluar.store') }}" method="POST">
                     @csrf
                     <!-- Dropdown Barang -->
                     <div class="form-group mb-3">
@@ -49,11 +50,42 @@
 
                     <!-- Tombol Simpan -->
                     <div class="text-center">
-                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        <button type="button" id="confirmSubmit" class="btn btn-primary">Simpan</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+    <!-- Modal Konfirmasi -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title" id="confirmModalLabel">Konfirmasi Simpan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Apakah Anda yakin ingin menyimpan data barang keluar ini?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" id="submitForm" class="btn btn-primary">Ya, Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
+
+<!-- Script Modal -->
+<script>
+    document.getElementById('confirmSubmit').addEventListener('click', function () {
+        var confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+        confirmModal.show();
+    });
+
+    document.getElementById('submitForm').addEventListener('click', function () {
+        document.getElementById('barangKeluarForm').submit();
+    });
+</script>
 @endsection

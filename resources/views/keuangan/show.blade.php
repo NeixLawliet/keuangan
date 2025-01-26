@@ -1,4 +1,5 @@
 @extends('layouts.main')
+@section('title', 'Detail Transaksi')
 
 @section('content')
 <main class="main-content position-relative border-radius-lg">

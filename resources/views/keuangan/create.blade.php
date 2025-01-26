@@ -1,7 +1,8 @@
 @extends('layouts.main')
+@section('title', 'Input Transaksi')
 
 @section('content')
-<main class="main-content position-relative border-radius-lg">
+<main class="main-content position-relative border-radius- mb-4">
     <div class="container mt-5">
         <div class="row">
             <div class="col-lg-8 mx-auto">
@@ -10,6 +11,7 @@
                         <h3 class="text-light">Input Transaksi</h3>
                     </div>
                     <div class="card-body">
+                        <!-- Notifikasi Error -->
                         @if ($errors->any())
                             <div class="alert alert-danger">
                                 <strong>Whoops!</strong> Ada masalah dengan input Anda.<br><br>
@@ -21,13 +23,15 @@
                             </div>
                         @endif
 
+                        <!-- Notifikasi Sukses -->
                         @if(session('success'))
                             <div class="alert alert-success">
                                 {{ session('success') }}
                             </div>
                         @endif
 
-                        <form action="{{ route('keuangan.store') }}" method="POST">
+                        <!-- Form Input Transaksi -->
+                        <form id="transactionForm" action="{{ route('keuangan.store') }}" method="POST">
                             @csrf
                             <div class="mb-3">
                                 <label for="tanggal" class="form-label">Tanggal</label>
@@ -49,7 +53,8 @@
                                 <input type="number" name="jumlah" class="form-control" required>
                             </div>
                             <div class="text-center">
-                                <button type="submit" class="btn btn-success">Simpan Transaksi</button>
+                                <!-- Tombol untuk membuka modal -->
+                                <button type="button" class="btn btn-success" id="openConfirmModal">Simpan Transaksi</button>
                                 <a href="{{ route('keuangan.index') }}" class="btn btn-secondary">Batal</a>
                             </div>
                         </form>
@@ -58,5 +63,49 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Konfirmasi -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title" id="confirmModalLabel">Konfirmasi Simpan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Apakah Anda yakin ingin menyimpan data ini?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="confirmSave">Ya, Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
+
+<!-- JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const openModalButton = document.getElementById('openConfirmModal');
+        const confirmSaveButton = document.getElementById('confirmSave');
+        const form = document.getElementById('transactionForm');
+
+        // Membuka modal konfirmasi
+        openModalButton.addEventListener('click', () => {
+            // Validasi input sebelum membuka modal
+            if (form.checkValidity()) {
+                const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+                confirmModal.show();
+            } else {
+                alert('Mohon lengkapi semua field sebelum menyimpan.');
+            }
+        });
+
+        // Mengirimkan form setelah konfirmasi
+        confirmSaveButton.addEventListener('click', () => {
+            form.submit();
+        });
+    });
+</script>
 @endsection

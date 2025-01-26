@@ -7,39 +7,39 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    // Tampilkan halaman login
+    // Menampilkan halaman login
     public function index()
     {
-        return view('auth.login'); // Form login
+        return view('auth.login');
     }
 
     // Proses login
     public function store(Request $request)
-{
-    $credentials = $request->validate([
-        'username' => ['required', 'string'],
-        'password' => ['required', 'string'],
-    ]);
+    {
+        $credentials = $request->validate([
+            'username' => 'required|string',
+            'password' => 'required|string',
+        ]);
 
-    if (Auth::attempt($credentials)) {
-        $request->session()->regenerate();
-
-        // Arahkan pengguna berdasarkan perannya
-        $user = Auth::user();
-        if ($user->role === 'admin_keuangan') {
-            return redirect()->route('keuangan.index');
-        } elseif ($user->role === 'admin_inventory') {
-            return redirect()->route('inventory.index');
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+        
+            $user = Auth::user();
+            session()->flash('success', "Selamat datang, {$user->name}!");
+        
+            // Redirect berdasarkan role
+            if ($user->role === 'admin_keuangan') {
+                return redirect()->route('keuangan.index');
+            } elseif ($user->role === 'admin_inventory') {
+                return redirect()->route('inventory.index');
+            } elseif ($user->role === 'admin_besar') {
+                return redirect()->route('dashboard'); 
+            }
         }
 
-        // Default redirect untuk role lain
-        return redirect()->route('dashboard');
+        session()->flash('error', 'Username atau password salah.');
+        return back()->withInput();
     }
-
-    return back()->withErrors([
-        'username' => 'The provided credentials do not match our records.',
-    ])->onlyInput('username');
-}
 
 
     // Logout
@@ -49,9 +49,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login'); // Redirect ke halaman login setelah logout
+        return redirect()->route('login')->with('success', 'Logout berhasil!');
     }
-
-    
 }
-

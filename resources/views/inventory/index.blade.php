@@ -3,11 +3,33 @@
 @section('title', 'Inventory')
 @section('content')
 <main class="main-content position-relative border-radius-lg">
+
+
+    <!-- Modal Alert Sukses -->
+    @if (session('success'))
+        <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title" id="successModalLabel">Berhasil</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{ session('success') }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <div class="container mt-4 d-flex align-items-center justify-content-between">
         <div>
             <h4 class="mb-0 main-header" style="color: white; font-weight: bold;">Daftar Barang</h4>
             <p class="main-paragraph mb-0" style="color: white; font-weight: bold;">
-                Total Barang: {{ $inventory ? $inventory->count() : 0 }} Barang
+                 Total Barang: {{ $stokBarang->sum('stok') }} Barang
             </p>
         </div>
         <div>
@@ -77,7 +99,7 @@
             </form>
             <div class="card">
                 <div class="card-body">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered text-center">
                         <thead>
                             <tr>
                                 <th>Tanggal</th>
@@ -139,4 +161,13 @@
         </div>
     </div>
 </main>
+
+@if (session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
+        });
+    </script>
+@endif
 @endsection
