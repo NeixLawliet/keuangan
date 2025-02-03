@@ -50,7 +50,8 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
-    Route::get('/laporan/pdf', [LaporanController::class, 'downloadPDF'])->name('laporan.pdf');
+    Route::get('/laporan/pdf-transaksi', [LaporanController::class, 'downloadTransaksiPDF'])->name('laporan.pdf_transaksi');
+    Route::get('/laporan/pdf-barang', [LaporanController::class, 'downloadBarangPDF'])->name('laporan.pdf_barang');
 
 });
 

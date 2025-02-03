@@ -8,151 +8,95 @@ use App\Models\Inventory;
 use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 use ConsoleTVs\Charts\Classes\Chartjs\Chart;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class LaporanController extends Controller
 {
     public function index(Request $request)
     {
         $kategori = $request->kategori;
-        $bulan = $request->bulan; // Parameter bulan dari request
+        $bulan = $request->bulan;
+        $bulan_barang = $request->bulan_barang;
 
-        $query = Keuangan::query();
-
-        if ($kategori) {
-            $query->where('kategori', $kategori);
+        if (!is_numeric($bulan) || $bulan < 1 || $bulan > 12) {
+            $bulan = null;
         }
 
-        if ($bulan && is_numeric($bulan) && $bulan >= 1 && $bulan <= 12) {
-            // Filter data berdasarkan bulan
-            $query->whereMonth('tanggal', $bulan);
-        }
+        $keuangans = Keuangan::when($kategori, function ($query) use ($kategori) {
+                return $query->where('kategori', ucfirst(strtolower($kategori)));
+            })
+            ->when($bulan, function ($query) use ($bulan) {
+                return $query->whereMonth('tanggal', $bulan);
+            })
+            ->get();
 
-        $keuangans = $query->get();
-
-        $allMonths = [
-            'January',
-            'February',
-            'March',
-            'April',
-            'May',
-            'June',
-            'July',
-            'August',
-            'September',
-            'October',
-            'November',
-            'December'
-        ];
-
-        // Total Pemasukan dan Pengeluaran
         $totalMasuk = $keuangans->where('kategori', 'Masuk')->sum('jumlah');
         $totalKeluar = $keuangans->where('kategori', 'Keluar')->sum('jumlah');
         $selisih = $totalMasuk - $totalKeluar;
 
-        // Data untuk grafik (bulan vs jumlah)
-        $chartData = $keuangans
-            ->groupBy(function ($item) {
-                return \Carbon\Carbon::parse($item->tanggal)->format('F'); // Group by month name
-            })
-            ->map(function ($group) {
-                return [
-                    'pemasukan' => $group->where('kategori', 'Masuk')->sum('jumlah'),
-                    'pengeluaran' => $group->where('kategori', 'Keluar')->sum('jumlah'),
-                ];
-            })->toArray();
-
         // Data untuk tabel
         $tableData = $keuangans
             ->groupBy(function ($item) {
-                return \Carbon\Carbon::parse($item->tanggal)->format('F');
+                return Carbon::parse($item->tanggal)->translatedFormat('F');
             })
             ->map(function ($group) {
-                $pemasukan = $group->where('kategori', 'Masuk')->sum('jumlah');
-                $pengeluaran = $group->where('kategori', 'Keluar')->sum('jumlah');
                 return [
                     'transaksi' => $group->count(),
-                    'pemasukan' => $pemasukan,
-                    'pengeluaran' => $pengeluaran,
-                    'selisih' => $pemasukan - $pengeluaran,
+                    'pemasukan' => $group->where('kategori', 'Masuk')->sum('jumlah'),
+                    'pengeluaran' => $group->where('kategori', 'Keluar')->sum('jumlah'),
+                    'selisih' => $group->where('kategori', 'Masuk')->sum('jumlah') - $group->where('kategori', 'Keluar')->sum('jumlah'),
                 ];
             });
 
-
-
-        // Data untuk card
-        $transaksiMasuk = DB::table('keuangans')->where('kategori', 'masuk')->sum('jumlah');
-        $pengeluaran = DB::table('keuangans')->where('kategori', 'keluar')->sum('jumlah');
-        $barangMasuk = DB::table('inventorys')->where('kategori', 'masuk')->sum('jumlah');
-        $barangKeluar = DB::table('inventorys')->where('kategori', 'keluar')->sum('jumlah');
-
-
-        // Data untuk grafik keuangan bulanan
+        // Data untuk Chart Keuangan
         $keuanganData = [
             'masuk' => [],
             'keluar' => []
         ];
 
         for ($month = 1; $month <= 12; $month++) {
-            // Ambil transaksi masuk berdasarkan bulan
-            $masuk = DB::table('keuangans')
-                ->where('kategori', 'masuk')
-                ->whereMonth('tanggal', $month) // Memastikan mengambil data berdasarkan bulan
-                ->sum('jumlah');
+            $masuk = Keuangan::where('kategori', 'Masuk')->whereMonth('tanggal', $month)->sum('jumlah');
+            $keluar = Keuangan::where('kategori', 'Keluar')->whereMonth('tanggal', $month)->sum('jumlah');
 
-            // Ambil transaksi keluar berdasarkan bulan
-            $keluar = DB::table('keuangans')
-                ->where('kategori', 'keluar')
-                ->whereMonth('tanggal', $month) // Memastikan mengambil data berdasarkan bulan
-                ->sum('jumlah');
-
-            // Simpan hasil ke dalam array
             $keuanganData['masuk'][] = $masuk;
             $keuanganData['keluar'][] = $keluar;
         }
 
-        // Membuat grafik keuangan dengan ConsoleTVs/Charts
+        // Membuat Grafik Keuangan
         $keuanganChart = new Chart;
         $keuanganChart->labels(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']);
         $keuanganChart->dataset('Transaksi Masuk', 'line', $keuanganData['masuk'])->color('#00ff00');
         $keuanganChart->dataset('Transaksi Keluar', 'line', $keuanganData['keluar'])->color('#ff0000');
 
-        $barangData = Inventory::select(
-            DB::raw('MONTH(tanggal) as bulan'),
+        // Query untuk Barang Data
+        $queryBarang = Inventory::select(
+            DB::raw('DATE_FORMAT(tanggal, "%m") as bulan'),
             'nama_barang',
             DB::raw('SUM(CASE WHEN kategori = "Masuk" THEN jumlah ELSE 0 END) as barang_masuk'),
             DB::raw('SUM(CASE WHEN kategori = "Keluar" THEN jumlah ELSE 0 END) as barang_keluar'),
             DB::raw('SUM(CASE WHEN kategori = "Masuk" THEN jumlah ELSE 0 END) - SUM(CASE WHEN kategori = "Keluar" THEN jumlah ELSE 0 END) as stok')
-        );
-        
-        // Tambahkan filter bulan jika ada parameter bulan di request
-        if ($bulan && is_numeric($bulan) && $bulan >= 1 && $bulan <= 12) {
-            $barangData->whereMonth('tanggal', $bulan);
-        }
-        
-        $barangData = $barangData
-            ->groupBy('bulan', 'nama_barang')
-            ->orderBy(DB::raw('MONTH(tanggal)'))
-            ->get();
-        
+        )
+        ->when($bulan_barang, function ($query) use ($bulan_barang) {
+            return $query->whereMonth('tanggal', $bulan_barang);
+        })
+        ->groupBy('bulan', 'nama_barang')
+        ->orderBy(DB::raw('CAST(bulan AS UNSIGNED)'))
+        ->get();        
 
-        // Data untuk grafik inventory
-        $inventoryData = [
-            'masuk' => $barangMasuk,
-            'keluar' => $barangKeluar
-        ];
-
-        $barangData = $barangData->map(function ($item) {
-            $item->bulan = \Carbon\Carbon::createFromFormat('m', $item->bulan)->format('F');
+        // Memastikan Bulan Tidak Berubah
+        $barangData = $queryBarang->map(function ($item) {
+            $item->bulan = Carbon::createFromFormat('m', $item->bulan)->translatedFormat('F');
             return $item;
         });
 
-        // Membuat grafik inventory
+        // Data untuk Grafik Inventory
+        $barangMasuk = Inventory::where('kategori', 'Masuk')->sum('jumlah');
+        $barangKeluar = Inventory::where('kategori', 'Keluar')->sum('jumlah');
+
         $inventoryChart = new Chart;
         $inventoryChart->labels(['Barang Masuk', 'Barang Keluar']);
         $inventoryChart->dataset('Barang Masuk', 'bar', [$barangMasuk, 0])->color('#00ff00');
         $inventoryChart->dataset('Barang Keluar', 'bar', [0, $barangKeluar])->color('#ff0000');
-
-
 
         return view('laporan.index', compact(
             'keuangans',
@@ -160,73 +104,64 @@ class LaporanController extends Controller
             'totalKeluar',
             'selisih',
             'tableData',
-            'transaksiMasuk',
-            'pengeluaran',
-            'barangMasuk',
-            'barangKeluar',
             'keuanganChart',
             'inventoryChart',
-            'inventoryData',
             'barangData'
         ));
     }
 
-    public function downloadPDF(Request $request)
+    public function downloadTransaksiPDF(Request $request)
     {
         $bulan = $request->bulan;
 
-        $query = Keuangan::query();
+        $keuangans = Keuangan::when($bulan, function ($query) use ($bulan) {
+                return $query->whereMonth('tanggal', $bulan);
+            })
+            ->get();
 
-        if ($bulan && is_numeric($bulan) && $bulan >= 1 && $bulan <= 12) {
-            $query->whereMonth('tanggal', $bulan);
-        }
-
-        $keuangans = $query->get();
-
-        // Data untuk tabel
         $tableData = $keuangans
             ->groupBy(function ($item) {
-                return \Carbon\Carbon::parse($item->tanggal)->format('F');
+                return Carbon::parse($item->tanggal)->translatedFormat('F');
             })
             ->map(function ($group) {
-                $pemasukan = $group->where('kategori', 'Masuk')->sum('jumlah');
-                $pengeluaran = $group->where('kategori', 'Keluar')->sum('jumlah');
                 return [
                     'transaksi' => $group->count(),
-                    'pemasukan' => $pemasukan,
-                    'pengeluaran' => $pengeluaran,
-                    'selisih' => $pemasukan - $pengeluaran,
+                    'pemasukan' => $group->where('kategori', 'Masuk')->sum('jumlah'),
+                    'pengeluaran' => $group->where('kategori', 'Keluar')->sum('jumlah'),
+                    'selisih' => $group->where('kategori', 'Masuk')->sum('jumlah') - $group->where('kategori', 'Keluar')->sum('jumlah'),
                 ];
             });
-            
-            $queryBarang = Inventory::select(
-                DB::raw('MONTH(tanggal) as bulan'),
-                'nama_barang',
-                DB::raw('SUM(CASE WHEN kategori = "Masuk" THEN jumlah ELSE 0 END) as barang_masuk'),
-                DB::raw('SUM(CASE WHEN kategori = "Keluar" THEN jumlah ELSE 0 END) as barang_keluar'),
-                DB::raw('SUM(CASE WHEN kategori = "Masuk" THEN jumlah ELSE 0 END) - SUM(CASE WHEN kategori = "Keluar" THEN jumlah ELSE 0 END) as stok')
-            );
-        
-            if ($bulan && is_numeric($bulan) && $bulan >= 1 && $bulan <= 12) {
-                $queryBarang->whereMonth('tanggal', $bulan);
-            }
-        
-            $barangData = $queryBarang
-                ->groupBy('bulan', 'nama_barang')
-                ->orderBy(DB::raw('MONTH(tanggal)'))
-                ->get();
-        
-            // Konversi bulan menjadi nama bulan
-            $barangData = $barangData->map(function ($item) {
-                $item->bulan = \Carbon\Carbon::createFromFormat('m', $item->bulan)->format('F');
-                return $item;
-            });
-        
-            // Generate PDF
-            $pdf = FacadePdf::loadView('laporan.pdf', [
-                'tableData' => $tableData,
-                'barangData' => $barangData,
-            ]);        
-        return $pdf->download('laporan-transaksi-barang.pdf');
+
+        $pdf = FacadePdf::loadView('laporan.laporan_pdf_transaksi', compact('tableData'));
+
+        return $pdf->download('laporan-transaksi.pdf');
+    }
+
+    public function downloadBarangPDF(Request $request)
+    {
+        $bulan = $request->bulan;
+
+        $queryBarang = Inventory::select(
+            DB::raw('MONTH(tanggal) as bulan'),
+            'nama_barang',
+            DB::raw('SUM(CASE WHEN kategori = "Masuk" THEN jumlah ELSE 0 END) as barang_masuk'),
+            DB::raw('SUM(CASE WHEN kategori = "Keluar" THEN jumlah ELSE 0 END) as barang_keluar'),
+            DB::raw('SUM(CASE WHEN kategori = "Masuk" THEN jumlah ELSE 0 END) - SUM(CASE WHEN kategori = "Keluar" THEN jumlah ELSE 0 END) as stok')
+        )
+        ->when($bulan, function ($query) use ($bulan) {
+            return $query->whereMonth('tanggal', $bulan);
+        })
+        ->groupBy('bulan', 'nama_barang')
+        ->orderBy(DB::raw('MONTH(tanggal)'))
+        ->get();
+
+        $barangData = $queryBarang->map(function ($item) {
+            $item->bulan = Carbon::createFromFormat('m', $item->bulan)->translatedFormat('F');
+            return $item;
+        });
+
+        $pdf = FacadePdf::loadView('laporan.laporan_pdf_barang', compact('barangData'));
+
+        return $pdf->download('laporan-barang.pdf');
     }
 }

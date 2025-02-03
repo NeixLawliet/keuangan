@@ -26,6 +26,11 @@ class AuthController extends Controller
         
             $user = Auth::user();
             session()->flash('success', "Selamat datang, {$user->name}!");
+
+            // Simpan flash session untuk modal hanya jika role = admin_besar
+            if ($user->role === 'admin_besar') {
+                session()->flash('show_welcome_modal', true);
+            }
         
             // Redirect berdasarkan role
             if ($user->role === 'admin_keuangan') {

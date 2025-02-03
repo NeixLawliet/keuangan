@@ -34,105 +34,99 @@
     {!! $keuanganChart->script() !!}
     {!! $inventoryChart->script() !!}
 
-    <!-- Filter dan Tabel -->
+    <!-- Data Transaksi -->
     <div class="card mt-4">
         <div class="card-header pb-0">
             <h6>Data Transaksi</h6>
         </div>
         <div class="card-body">
-            <!-- Filter dan Download PDF -->
-            <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
-                <form method="GET" action="{{ route('laporan.index') }}" class="d-flex align-items-center gap-2">
-                    <div class="input-group" style="max-width: 200px;">
-                        <span class="input-group-text text-body">
-                            <i class="fas fa-search" aria-hidden="true"></i>
-                        </span>
-                        <input type="text" class="form-control" placeholder="Cari" name="cari" value="{{ request('cari') }}">
-                    </div>
-                    <select class="form-select" name="bulan" style="width: 150px; height: 38px;">
-                        <option value="">Pilih Bulan</option>
-                        <option value="1" {{ request('bulan') == '1' ? 'selected' : '' }}>Januari</option>
-                        <option value="2" {{ request('bulan') == '2' ? 'selected' : '' }}>Februari</option>
-                        <option value="3" {{ request('bulan') == '3' ? 'selected' : '' }}>Maret</option>
-                        <option value="4" {{ request('bulan') == '4' ? 'selected' : '' }}>April</option>
-                        <option value="5" {{ request('bulan') == '5' ? 'selected' : '' }}>Mei</option>
-                        <option value="6" {{ request('bulan') == '6' ? 'selected' : '' }}>Juni</option>
-                        <option value="7" {{ request('bulan') == '7' ? 'selected' : '' }}>Juli</option>
-                        <option value="8" {{ request('bulan') == '8' ? 'selected' : '' }}>Agustus</option>
-                        <option value="9" {{ request('bulan') == '9' ? 'selected' : '' }}>September</option>
-                        <option value="10" {{ request('bulan') == '10' ? 'selected' : '' }}>Oktober</option>
-                        <option value="11" {{ request('bulan') == '11' ? 'selected' : '' }}>November</option>
-                        <option value="12" {{ request('bulan') == '12' ? 'selected' : '' }}>Desember</option>
-                    </select>
-                    <button type="submit" class="btn btn-primary" style="height: 42px;">Filter</button>
-                </form>
-
-                <a href="{{ route('laporan.pdf', ['bulan' => request('bulan')]) }}" class="btn btn-primary" style="height: 42px;">Download PDF</a>
-            </div>
-
-            <table class="table align-items-center table-sm mb-0" style="font-size: 0.875rem;">
-                <thead>
-                    <tr>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">NO</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Bulan</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Transaksi</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Pemasukan</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Pengeluaran</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Selisih</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($tableData as $month => $data)
-                    <tr>
-                        <td class="text-center">{{ $loop->iteration }}</td>
-                        <td class="text-center">{{ $month }}</td>
-                        <td class="text-center">{{ $data['transaksi'] }}</td>
-                        <td class="text-center">{{ $data['pemasukan'] ?? 0 }}</td>
-                        <td class="text-center">{{ $data['pengeluaran'] ?? 0 }}</td>
-                        <td class="text-center">{{ $data['selisih'] ?? 0 }}</td>
-                    </tr>
+            <form method="GET" action="{{ route('laporan.index') }}" class="d-flex align-items-center gap-2 mb-3">
+                <select class="form-select" name="bulan" style="width: 150px; height: 38px;">
+                    <option value="">Pilih Bulan</option>
+                    @foreach (range(1, 12) as $bulan)
+                        <option value="{{ $bulan }}" {{ request('bulan') == $bulan ? 'selected' : '' }}>
+                            {{ DateTime::createFromFormat('!m', $bulan)->format('F') }}
+                        </option>
                     @endforeach
-                </tbody>
-            </table>
-            <div class="card-footer text-center mt-4">
-                <a href="{{ route('keuangan.index') }}" class="text-primary">View All >></a>
+                </select>
+                <button type="submit" class="btn btn-primary" style="height: 42px;">Filter</button>
+                <a href="{{ route('laporan.pdf_transaksi', ['bulan' => request('bulan')]) }}" class="btn btn-primary" style="height: 42px;">Download PDF</a>
+            </form>    
+            <div class="table-responsive">
+                <table class="table align-items-center table-sm mb-0" style="font-size: 0.875rem;">
+                    <thead>
+                        <tr>
+                            <th class="text-center">NO</th>
+                            <th class="text-center">Bulan</th>
+                            <th class="text-center">Transaksi</th>
+                            <th class="text-center">Pemasukan</th>
+                            <th class="text-center">Pengeluaran</th>
+                            <th class="text-center">Selisih</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($tableData as $month => $data)
+                        <tr>
+                            <td class="text-center">{{ $loop->iteration }}</td>
+                            <td class="text-center">{{ $month }}</td>
+                            <td class="text-center">{{ $data['transaksi'] }}</td>
+                            <td class="text-center">{{ $data['pemasukan'] ?? 0 }}</td>
+                            <td class="text-center">{{ $data['pengeluaran'] ?? 0 }}</td>
+                            <td class="text-center">{{ $data['selisih'] ?? 0 }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
-            <div class="card mt-4">
+        </div>
+    </div>
+
+    <!-- Data Barang -->
+    <div class="card mt-4">
         <div class="card-header pb-0">
             <h6>Data Barang</h6>
         </div>
         <div class="card-body">
-            <table class="table align-items-center table-sm mb-0" style="font-size: 0.875rem;">
-                <thead>
-                    <tr>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">NO</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Bulan</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Nama Barang</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Barang Masuk</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Barang Keluar</th>
-                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Stok</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($barangData as $item)
-                    <tr>
-                        <td class="text-center">{{ $loop->iteration }}</td>
-                        <td class="text-center">{{ $item->bulan }}</td>
-                        <td class="text-center">{{ $item->nama_barang }}</td>
-                        <td class="text-center">{{ $item->barang_masuk }}</td>
-                        <td class="text-center">{{ $item->barang_keluar }}</td>
-                        <td class="text-center">{{ $item->stok }}</td>
-                    </tr>
+            <form method="GET" action="{{ route('laporan.index') }}" class="d-flex align-items-center gap-2 mb-3">
+                <select class="form-select" name="bulan_barang" style="width: 150px; height: 38px;">
+                    <option value="">Pilih Bulan</option>
+                    @foreach (range(0, 12) as $bulan)
+                        <option value="{{ $bulan }}" {{ request('bulan_barang') == $bulan ? 'selected' : '' }}>
+                            {{ DateTime::createFromFormat('!m', $bulan)->format('F') }}
+                        </option>
                     @endforeach
-                </tbody>
-            </table>
+                </select>
+                <button type="submit" class="btn btn-primary" style="height: 42px;">Filter</button>
+                <a href="{{ route('laporan.pdf_barang', ['bulan_barang' => request('bulan_barang')]) }}" class="btn btn-primary" style="height: 42px;">Download PDF</a>
+            </form>
+            <div class="table-responsive">
+                <table class="table align-items-center table-sm mb-0" style="font-size: 0.875rem;">
+                    <thead>
+                        <tr>
+                            <th class="text-center">NO</th>
+                            <th class="text-center">Bulan</th>
+                            <th class="text-center">Nama Barang</th>
+                            <th class="text-center">Barang Masuk</th>
+                            <th class="text-center">Barang Keluar</th>
+                            <th class="text-center">Stok</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($barangData as $item)
+                        <tr>
+                            <td class="text-center">{{ $loop->iteration }}</td>
+                            <td class="text-center">{{ $item->bulan }}</td>
+                            <td class="text-center">{{ $item->nama_barang }}</td>
+                            <td class="text-center">{{ $item->barang_masuk }}</td>
+                            <td class="text-center">{{ $item->barang_keluar }}</td>
+                            <td class="text-center">{{ $item->stok }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-    <div class="card-footer text-center mt-4">
-                <a href="{{ route('inventory.index') }}" class="text-primary">View All >></a>
-            </div>
-
-
 </main>
 
 <script>

@@ -31,8 +31,7 @@
 </head>
 
 
-<!-- Modal Selamat Datang -->
-@if (Auth::user()->role == 'admin_besar')
+@if (session('show_welcome_modal'))
 <div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="welcomeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -41,7 +40,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Selamat datang, <strong>{{ Auth::user()->name }}</strong>! Semoga harimu menyenankan di sistem ini.</p>
+                <p>Selamat datang, <strong>{{ Auth::user()->name }}</strong>! Semoga harimu menyenangkan di sistem ini.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Tutup</button>
@@ -49,6 +48,13 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var myModal = new bootstrap.Modal(document.getElementById('welcomeModal'));
+        myModal.show();
+    });
+</script>
 @endif
 
 <body class="g-sidenav-show   bg-gray-100">

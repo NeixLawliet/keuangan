@@ -258,8 +258,8 @@
         <!-- Tabel -->
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered align-items-center mb-0 bg-white">
-                    <thead class="bg-light">
+                <table class="table align-items-center table-sm mb-0" style="font-size: 0.875rem;">
+                    <thead>
                         <tr>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">NO</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Bulan</th>

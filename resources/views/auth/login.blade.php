@@ -12,8 +12,13 @@
     >
     <style>
         body {
-            background-color: #f8f9fa;
-        }
+            background-image: url('img/bg.svg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* Agar background tetap saat scroll */
+            }
+
         .login-card {
             max-width: 400px; /* Ukuran kartu login */
             width: 100%;
