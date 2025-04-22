@@ -52,10 +52,10 @@
 
 <body>
     <div class="kop-surat">
-        <img src="img/fiinventory.svg" style="width: 150px; position: absolute; z-index: -99; mix-blend-mode: multiply;">
-        <h2>Fiinventory</h2>
-        <p style="margin-left: 100px; margin-right: 100px;">Jl. Terusan Sekolah No.1-2, Cicaheum, Kec. Kiaracondong, Kota Bandung, Jawa Barat 40282</p>
-        <p>Email: kampus@ars.ac.id | Telepon: 081-222-300-425</p>
+        <img src="img/logo.png" style="width: 90px; height:auto; position: absolute; z-index: -99; mix-blend-mode: multiply; top: 50px;">
+        <h2>"Glow Happily, <strong>Naturally</strong></h2>
+        <p style="margin-left: 100px; margin-right: 100px;">Komplek Tanjung Sari Asri Residence Kav D no 3, Antapani, Bandung</p>
+        <p>Email: happy.go.mask.powder@gmail.com | Telepon: 0851-3638-0163</p>
     </div>
 
 

@@ -6,7 +6,8 @@
     <div class="container-fluid py-4">
         <div class="row mt-4">
             <!-- Grafik Keuangan -->
-            <div class="col-lg-6 mb-lg-0 mb-4">
+            @if (Auth::user()->role == 'admin_besar' || Auth::user()->role == 'admin_keuangan')
+            <div class="{{ Auth::user()->role == 'admin_keuangan' ? 'col-lg-12' : 'col-lg-6' }} mb-lg-0 mb-4">
                 <div class="card z-index-2 h-100">
                     <div class="card-header pb-0 pt-3 bg-transparent">
                         <h6 class="text-capitalize">Grafik Keuangan (Transaksi Masuk & Keluar)</h6>
@@ -16,9 +17,11 @@
                     </div>
                 </div>
             </div>
+            @endif
 
             <!-- Grafik Inventory -->
-            <div class="col-lg-6 mb-lg-0 mb-4">
+            @if (Auth::user()->role == 'admin_besar' || Auth::user()->role == 'admin_inventory')
+            <div class="{{ Auth::user()->role == 'admin_inventory' ? 'col-lg-12' : 'col-lg-6' }} mb-lg-0 mb-4">
                 <div class="card z-index-2 h-100">
                     <div class="card-header pb-0 pt-3 bg-transparent">
                         <h6 class="text-capitalize">Grafik Inventory (Barang Masuk & Keluar)</h6>
@@ -28,6 +31,7 @@
                     </div>
                 </div>
             </div>
+            @endif
         </div>
     </div>
 
@@ -35,6 +39,7 @@
     {!! $inventoryChart->script() !!}
 
     <!-- Data Transaksi -->
+    @if (Auth::user()->role == 'admin_besar' || Auth::user()->role == 'admin_keuangan')
     <div class="card mt-4">
         <div class="card-header pb-0">
             <h6>Data Transaksi</h6>
@@ -80,8 +85,10 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Data Barang -->
+    @if (Auth::user()->role == 'admin_besar' || Auth::user()->role == 'admin_inventory')
     <div class="card mt-4">
         <div class="card-header pb-0">
             <h6>Data Barang</h6>
@@ -127,6 +134,7 @@
             </div>
         </div>
     </div>
+    @endif
 </main>
 
 <script>

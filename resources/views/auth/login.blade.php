@@ -39,7 +39,7 @@
             <!-- Logo -->
             <div class="text-center mb-4">
                 <img 
-                    src="{{ asset('img/fiinventory.svg') }}" 
+                    src="{{ asset('img/logo.png') }}" 
                     alt="Logo" 
                     class="img-fluid"
                 >
