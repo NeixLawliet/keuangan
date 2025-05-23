@@ -21,7 +21,7 @@ class KeuanganController extends Controller
         }
 
         $keuangans = $query->get();
-        
+         
         // Total Pemasukan
         $totalMasuk = $keuangans->where('kategori', 'Masuk')->sum('jumlah');
         

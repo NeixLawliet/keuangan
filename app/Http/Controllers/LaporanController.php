@@ -9,6 +9,9 @@ use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 use ConsoleTVs\Charts\Classes\Chartjs\Chart;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\BarangExport;
+use App\Exports\TransaksiExport;
 
 class LaporanController extends Controller
 {
@@ -164,4 +167,20 @@ class LaporanController extends Controller
 
         return $pdf->download('laporan-barang.pdf');
     }
+
+    public function downloadBarangExcel(Request $request)
+    {
+        $bulan = $request->bulan;
+        return Excel::download(new BarangExport($bulan), 'laporan-barang.xlsx');
+    }
+
+    public function downloadTransaksiExcel(Request $request)
+    {
+        $bulan = $request->bulan;
+        return Excel::download(new TransaksiExport($bulan), 'laporan-transaksi.xlsx');
+    }
+
+    
+
+    
 }

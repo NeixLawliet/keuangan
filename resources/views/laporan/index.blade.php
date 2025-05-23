@@ -55,7 +55,8 @@
                     @endforeach
                 </select>
                 <button type="submit" class="btn btn-primary" style="height: 42px;">Filter</button>
-                <a href="{{ route('laporan.pdf_transaksi', ['bulan' => request('bulan')]) }}" class="btn btn-primary" style="height: 42px;">Download PDF</a>
+                <a href="{{ route('laporan.pdf_transaksi', ['bulan' => request('bulan')]) }}" class="btn btn-danger" style="height: 42px;">Download PDF</a>
+                <a href="{{ route('laporan.transaksi.excel', ['bulan' => request('bulan')]) }}" class="btn btn-success">Download Excel</a>
             </form>    
             <div class="table-responsive">
                 <table class="table align-items-center table-sm mb-0" style="font-size: 0.875rem;">
@@ -104,7 +105,8 @@
                     @endforeach
                 </select>
                 <button type="submit" class="btn btn-primary" style="height: 42px;">Filter</button>
-                <a href="{{ route('laporan.pdf_barang', ['bulan_barang' => request('bulan_barang')]) }}" class="btn btn-primary" style="height: 42px;">Download PDF</a>
+                <a href="{{ route('laporan.pdf_barang', ['bulan_barang' => request('bulan_barang')]) }}" class="btn btn-danger" style="height: 42px;">Download PDF</a>
+                <a href="{{ route('laporan.barang.excel', ['bulan' => request('bulan')]) }}" class="btn btn-success">Download Excel</a>
             </form>
             <div class="table-responsive">
                 <table class="table align-items-center table-sm mb-0" style="font-size: 0.875rem;">

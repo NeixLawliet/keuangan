@@ -52,6 +52,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/pdf-transaksi', [LaporanController::class, 'downloadTransaksiPDF'])->name('laporan.pdf_transaksi');
     Route::get('/laporan/pdf-barang', [LaporanController::class, 'downloadBarangPDF'])->name('laporan.pdf_barang');
+    Route::get('/laporan/barang/excel', [LaporanController::class, 'downloadBarangExcel'])->name('laporan.barang.excel');
+    Route::get('/laporan/transaksi/excel', [LaporanController::class, 'downloadTransaksiExcel'])->name('laporan.transaksi.excel');
+
 
 });
 
